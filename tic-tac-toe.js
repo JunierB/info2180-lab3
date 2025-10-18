@@ -1,32 +1,70 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const squares = document.querySelectorAll('#board > div'); // Select all divs inside the board
-  let currentPlayer = 'X'; // Start with player X
-  const gameState = Array(9).fill(null); // Initialize an empty array to track the game state
+  const board = document.getElementById('board');
+  const statusDiv = document.getElementById('status');
+  const newGameButton = document.querySelector('.btn');
+  let gameState = ['', '', '', '', '', '', '', '', ''];
+  let currentPlayer = 'X';
+  let gameActive = true;
 
+  // Initialize the board
+  const squares = Array.from(board.children);
   squares.forEach((square, index) => {
-    square.classList.add('square'); // Add the 'square' class to each div
+    square.classList.add('square');
+    square.addEventListener('click', () => {
+      if (!gameState[index] && gameActive) { // Prevent changing a square with a value
+        gameState[index] = currentPlayer;
+        square.textContent = currentPlayer;
+        square.classList.add(currentPlayer);
 
-    // Add hover effect
-    square.addEventListener('mouseover', () => {
-      if (!gameState[index]) {
-        square.classList.add('hover');
+        if (checkWinner()) {
+          statusDiv.textContent = `Congratulations! ${currentPlayer} is the Winner!`;
+          statusDiv.classList.add('you-won');
+          gameActive = false;
+        } else {
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+          statusDiv.textContent = `It's ${currentPlayer}'s turn.`;
+        }
       }
+    });
+
+    square.addEventListener('mouseover', () => {
+      square.classList.add('hover');
     });
 
     square.addEventListener('mouseout', () => {
       square.classList.remove('hover');
     });
+  });
 
-    // Handle click event
-    square.addEventListener('click', () => {
-      if (!gameState[index]) { // Check if the square is empty
-        gameState[index] = currentPlayer; // Update the game state
-        square.textContent = currentPlayer; // Display X or O
-        square.classList.add(currentPlayer); // Add the class 'X' or 'O' for styling
-
-        // Alternate the player
-        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-      }
+  // Reset the game
+  newGameButton.addEventListener('click', () => {
+    gameState = ['', '', '', '', '', '', '', '', ''];
+    currentPlayer = 'X';
+    gameActive = true;
+    statusDiv.textContent = 'Move your mouse over a square and click to play an X or an O.';
+    statusDiv.classList.remove('you-won');
+    squares.forEach(square => {
+      square.textContent = '';
+      square.classList.remove('X', 'O');
     });
   });
+
+  // Check for a winner
+  function checkWinner() {
+    const winningCombinations = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    return winningCombinations.some(combination => {
+      const [a, b, c] = combination;
+      return gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c];
+    });
+  }
 });
