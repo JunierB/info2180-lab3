@@ -6,6 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
   squares.forEach((square, index) => {
     square.classList.add('square'); // Add the 'square' class to each div
 
+    // Add hover effect
+    square.addEventListener('mouseover', () => {
+      if (!gameState[index]) {
+        square.classList.add('hover');
+      }
+    });
+
+    square.addEventListener('mouseout', () => {
+      square.classList.remove('hover');
+    });
+
+    // Handle click event
     square.addEventListener('click', () => {
       if (!gameState[index]) { // Check if the square is empty
         gameState[index] = currentPlayer; // Update the game state
